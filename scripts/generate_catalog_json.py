@@ -417,6 +417,23 @@ def generate_install_json(app_name: str, data: dict, app_path: str):
     return install_data
 
 
+def get_last_updated(app_name: str) -> str:
+    """Get last git commit date for app charts/ folder. Returns '' if no charts."""
+    import subprocess
+    charts_path = f'apps/{app_name}/charts'
+    if not os.path.exists(charts_path):
+        return ''
+    try:
+        result = subprocess.run(
+            ['git', 'log', '-1', '--format=%aI', '--', charts_path],
+            capture_output=True, text=True, timeout=5)
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return ''
+
+
 def process_app(app_name: str) -> dict | None:
     app_path = os.path.join(APPS_DIR, app_name)
     data_file = os.path.join(app_path, 'data.yaml')
@@ -490,6 +507,7 @@ def process_app(app_name: str) -> dict | None:
         'brandColor': brand_color,
         'doc_link': data.get('doc_link', ''),
         'created': data.get('created', ''),
+        'lastUpdated': get_last_updated(app_name) or data.get('created', ''),
         'githubRepo': github_repo,
         'stars': stars,
         'pulls': pulls,
