@@ -1,20 +1,22 @@
 import React, { useState, useMemo, useEffect } from "react";
 
 var DARK = {
-  bg0:"#0a0e1a",bg1:"#0f1424",bg2:"#151b2e",bg3:"#1c2540",
-  border:"#1e2d4a",borderHi:"#2a3f6a",
-  teal:"#00c8c8",tealBg:"#00c8c810",cyan:"#00e5ff",
-  textPri:"#e8edf8",textSec:"#7a8aaa",textMut:"#3d4d6a",
-  green:"#00d48a",amber:"#f5a623",red:"#ff4d6a",purple:"#a78bfa",
-  code:"#7dd3fc",
+  bg0:"#1e1e20",bg1:"#161618",bg2:"#555760",bg3:"#707587",
+
+  border:"#555760",borderHi:"#707587",
+  teal:"#1aaaff",tealBg:"#1aaaff10",cyan:"#00f7db",
+  textPri:"#f1f4fb",textSec:"#acb2c6",textMut:"#707587",
+  green:"#47fc99",amber:"#fae400",red:"#d7263d",purple:"#b07bff",
+  code:"#1aaaff",
 };
 var LIGHT = {
-  bg0:"#f0f4f8",bg1:"#ffffff",bg2:"#e8edf5",bg3:"#dce3ee",
-  border:"#c8d3e6",borderHi:"#a0b0cc",
-  teal:"#0097a7",tealBg:"#0097a710",cyan:"#0077b6",
-  textPri:"#0f1e3a",textSec:"#4a5a78",textMut:"#8a9ab8",
-  green:"#00875a",amber:"#b45309",red:"#c0162e",purple:"#6d28d9",
-  code:"#0550ae",
+  bg0:"#f1f4fb",bg1:"#ffffff",bg2:"#e4e9f7",bg3:"#c3c8db",
+
+  border:"#c3c8db",borderHi:"#acb2c6",
+  teal:"#007cc7",tealBg:"#007cc710",cyan:"#12c9ae",
+  textPri:"#1e1e20",textSec:"#555760",textMut:"#8e94a5",
+  green:"#35db78",amber:"#eac800",red:"#ae0630",purple:"#b07bff",
+  code:"#007cc7",
 };
 var B = Object.assign({}, DARK) as Record<string,string>;
 var IS_DARK = true;
@@ -46,11 +48,11 @@ var K8S_COMPAT = {
 };
 var MIRANTIS_CERTIFIED = {"amd-gpu":1,"nvidia":1,"nvidia-network-operator":1,"ceph":1,"cert-manager":1,"external-secrets":1,"mirantis-kyverno-guardrails":1,"mirantis-velero":1,"msr":1,"runai-cp":1,"stacklight":1};
 var SUPPORT_LABEL = {community:"Community",partner:"Verified Partner","mirantis-certified":"Mirantis Certified"};
-var SUPPORT_STYLE = {
-  community:{bg:"#ffffff08",text:B.textSec,border:"#ffffff15"},
-  partner:{bg:"#00d48a10",text:B.green,border:"#00d48a30"},
-  "mirantis-certified":{bg:"#00c8c810",text:B.teal,border:"#00c8c840"},
-};
+function getSupportStyle(tier:string) {
+  if (tier === "mirantis-certified") return {bg:B.teal+"10",text:B.teal,border:B.teal+"40"};
+  if (tier === "partner") return {bg:B.green+"10",text:B.green,border:B.green+"30"};
+  return {bg:B.textSec+"08",text:B.textSec,border:B.textSec+"15"};
+}
 var TIER_DESC = {
   "mirantis-certified":"Fully verified and tested end-to-end with k0rdent AI Enterprise. Provided with Mirantis Enterprise Support.",
   partner:"Functionally tested and supported for use with k0rdent AI Enterprise. Eligibility for Mirantis Enterprise Support is evaluated on a case-by-case basis.",
@@ -490,7 +492,7 @@ function InstallTab({ item, selVer, setSelVer, k0rdentVer }:{ item:any, selVer:s
 
 function DetailPanel({ item, onClose, tab, setTab, selVer, setSelVer, k0rdentVer }:any) {
   var eff = getEff(item);
-  var ss = SUPPORT_STYLE[eff];
+  var ss = getSupportStyle(eff);
   var compTags = COMPLIANCE[item.name] || [];
   var accent = tagAccent(item.tags[0] || "Other");
   var initials = "";
@@ -535,7 +537,7 @@ function DetailPanel({ item, onClose, tab, setTab, selVer, setSelVer, k0rdentVer
             <div style={{flex:1}}>
               <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginBottom:4}}>
                 <h2 style={{fontSize:19,fontWeight:700,color:B.textPri,margin:0}}>{item.title||item.name}</h2>
-                <span style={{fontSize:9,padding:"2px 7px",borderRadius:3,background:ss.bg,color:ss.text,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[eff]}</span>
+                <span style={{fontSize:9,padding:"2px 7px",borderRadius:3,background:ss.bg,color:B.textSec,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[eff]}</span>
               </div>
               <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                 {item.tags.map(function(t){return <span key={t} style={{fontSize:9.5,padding:"1px 6px",borderRadius:3,background:tagAccent(t)+"15",color:tagAccent(t),border:"1px solid "+tagAccent(t)+"25",fontWeight:500}}>{t}</span>;})}
@@ -622,7 +624,7 @@ function DetailPanel({ item, onClose, tab, setTab, selVer, setSelVer, k0rdentVer
 
 function Card({ item, onOpen }) {
   var eff = getEff(item);
-  var ss = SUPPORT_STYLE[eff];
+  var ss = getSupportStyle(eff);
   var accent = tagAccent(item.tags[0]||"Other");
   var compTags = COMPLIANCE[item.name]||[];
   var isCert = eff==="mirantis-certified";
@@ -641,7 +643,7 @@ function Card({ item, onOpen }) {
         <div style={{flex:1,minWidth:0}}>
           <div style={{display:"flex",alignItems:"center",gap:5,flexWrap:"wrap"}}>
             <span style={{fontWeight:600,fontSize:12.5,color:B.textPri}}>{item.title||item.name}</span>
-            <span style={{fontSize:8.5,padding:"1px 5px",borderRadius:3,background:ss.bg,color:ss.text,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[eff]}</span>
+            <span style={{fontSize:8.5,padding:"1px 5px",borderRadius:3,background:ss.bg,color:B.textSec,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[eff]}</span>
           </div>
           <div style={{display:"flex",gap:4,marginTop:3,flexWrap:"wrap"}}>
             {item.tags.slice(0,2).map(function(t){return <span key={t} style={{fontSize:9,padding:"1px 5px",borderRadius:3,background:tagAccent(t)+"15",color:tagAccent(t),fontWeight:500,border:"1px solid "+tagAccent(t)+"25"}}>{t}</span>;})}
@@ -837,7 +839,7 @@ function SolutionCard({ sol, onClick }) {
 
 function SolutionDetail({ sol, onClose }) {
   var bc = sol.badgeColor;
-  var ss = SUPPORT_STYLE[sol.tier]||SUPPORT_STYLE.community;
+  var ss = getSupportStyle(sol.tier||"community");
   var [copied, setCopied] = useState(false);
   var [detail, setDetail] = useState<any>(null);
   var [detailLoading, setDetailLoading] = useState(true);
@@ -868,7 +870,7 @@ function SolutionDetail({ sol, onClose }) {
               <div style={{display:"flex",alignItems:"center",gap:7,flexWrap:"wrap",marginBottom:3}}>
                 <h2 style={{fontSize:19,fontWeight:700,color:B.textPri,margin:0}}>{sol.title}{sol.beta&&<span style={{fontSize:9,marginLeft:6,padding:"2px 5px",borderRadius:3,background:B.amber+"20",color:B.amber,fontWeight:700,textTransform:"uppercase",verticalAlign:"middle"}}>Beta</span>}</h2>
                 {!sol.beta&&<span style={{fontSize:8.5,padding:"2px 7px",borderRadius:3,background:bc+"18",color:bc,border:"1px solid "+bc+"40",fontWeight:700,textTransform:"uppercase"}}>{sol.badge}</span>}
-                {!sol.beta&&<span style={{fontSize:8.5,padding:"2px 7px",borderRadius:3,background:ss.bg,color:ss.text,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[sol.tier]}</span>}
+                {!sol.beta&&<span style={{fontSize:8.5,padding:"2px 7px",borderRadius:3,background:ss.bg,color:B.textSec,border:"1px solid "+ss.border,fontWeight:600,textTransform:"uppercase"}}>{SUPPORT_LABEL[sol.tier]}</span>}
               </div>
               <div style={{fontSize:11.5,color:B.textMut}}>{sol.tagline}</div>
             </div>
@@ -1416,12 +1418,12 @@ function Nav({ view, setView, resetFilters, versions, k0rdentVer, onVersionChang
   }
   var displayVer = k0rdentVer || versions.latest || "";
   return (
-    <div style={{background:B.bg1,borderBottom:"1px solid "+B.border,padding:"0 20px",position:"sticky",top:0,zIndex:100}}>
+    <div style={{background:"#000000",borderBottom:"1px solid #555760",padding:"0 20px",position:"sticky",top:0,zIndex:100}}>
       <div className="k0-nav-inner" style={{maxWidth:1140,margin:"0 auto",display:"flex",alignItems:"center",justifyContent:"space-between",height:52}}>
         <div className="k0-nav-left" style={{display:"flex",alignItems:"center",gap:14}}>
-          <img onClick={function(){navTo("catalog");}} src={BASE+(dark?"k0rdent-logo.svg":"k0rdent-logo-dark.svg")} alt="k0rdent" style={{cursor:"pointer",height:22}} />
+          <img onClick={function(){navTo("catalog");}} src={BASE+"k0rdent-logo.svg"} alt="k0rdent" style={{cursor:"pointer",height:22}} />
           {versions.versions.length > 0 && (
-            <select value={displayVer} onChange={function(e:any){onVersionChange(e.target.value);}} style={{padding:"3px 6px",fontSize:10,background:B.bg2,color:B.teal,border:"1px solid "+B.border,borderRadius:4,cursor:"pointer",fontFamily:"monospace",outline:"none"}}>
+            <select value={displayVer} onChange={function(e:any){onVersionChange(e.target.value);}} style={{padding:"3px 6px",fontSize:10,background:"#161618",color:"#ffffff",border:"1px solid #555760",borderRadius:4,cursor:"pointer",fontFamily:"monospace",outline:"none"}}>
               {versions.versions.slice().reverse().map(function(v:string){
                 return <option key={v} value={v}>{v}{v===versions.latest?" (latest)":""}</option>;
               })}
@@ -1431,14 +1433,14 @@ function Nav({ view, setView, resetFilters, versions, k0rdentVer, onVersionChang
             {["catalog","infra","solutions","configurator"].map(function(v){
               var active=view===v;
               var label=v==="infra"?"Infrastructure":v;
-              return <button key={v} onClick={function(){navTo(v);}} style={{padding:"0 14px",fontSize:12,color:active?B.teal:B.textSec,background:"transparent",border:"none",borderBottom:"2px solid "+(active?B.teal:"transparent"),cursor:"pointer",fontFamily:"inherit",fontWeight:active?600:400,textTransform:"capitalize"}}>{label}{v==="configurator"&&<span style={{fontSize:8,marginLeft:4,padding:"1px 4px",borderRadius:3,background:B.amber+"20",color:B.amber,fontWeight:700,textTransform:"uppercase",verticalAlign:"super"}}>Beta</span>}</button>;
+              return <button key={v} onClick={function(){navTo(v);}} style={{padding:"0 14px",fontSize:12,color:active?"#35db78":"#ffffff",background:"transparent",border:"none",borderBottom:"2px solid "+(active?"#35db78":"transparent"),cursor:"pointer",fontFamily:"inherit",fontWeight:active?600:400,textTransform:"capitalize"}}>{label}{v==="configurator"&&<span style={{fontSize:8,marginLeft:4,padding:"1px 4px",borderRadius:3,background:"#fae40020",color:"#fae400",fontWeight:700,textTransform:"uppercase",verticalAlign:"super"}}>Beta</span>}</button>;
             })}
           </div>
         </div>
         <div className="k0-nav-right" style={{display:"flex",gap:8,alignItems:"center"}}>
-          <button onClick={toggleTheme} title={dark?"Switch to light theme":"Switch to dark theme"} style={{width:40,height:24,borderRadius:12,border:"1px solid "+B.border,background:dark?B.bg3:B.teal,cursor:"pointer",position:"relative",padding:0,flexShrink:0,transition:"background 0.2s"}}><span style={{position:"absolute",top:2,left:dark?2:"auto",right:dark?"auto":2,width:18,height:18,borderRadius:"50%",background:dark?"#e8edf8":"#ffffff",transition:"left 0.2s,right 0.2s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>{dark?"\u263E":"\u2600"}</span></button>
-          <a href="https://github.com/k0rdent/catalog" target="_blank" rel="noreferrer" style={{fontSize:11,color:B.textSec,textDecoration:"none",padding:"5px 11px",border:"1px solid "+B.border,borderRadius:6,background:B.bg2}}>GitHub</a>
-          <a href={BASE+"contribute/"} onClick={function(e:any){e.preventDefault();setView("contribute");history.pushState(null,"",appendTheme(versionBase(k0rdentVer||"")+"contribute/"));}} style={{fontSize:11,color:B.bg0,padding:"5px 11px",borderRadius:6,background:B.teal,fontWeight:600,border:"none",cursor:"pointer",fontFamily:"inherit",textDecoration:"none"}}>Contribute</a>
+          <button onClick={toggleTheme} title={dark?"Switch to light theme":"Switch to dark theme"} style={{width:40,height:24,borderRadius:12,border:"1px solid #555760",background:"#000000",cursor:"pointer",position:"relative",padding:0,flexShrink:0,transition:"background 0.2s"}}><span style={{position:"absolute",top:2,left:dark?2:"auto",right:dark?"auto":2,width:18,height:18,borderRadius:"50%",background:"#f1f4fb",transition:"left 0.2s,right 0.2s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>{dark?"\u263E":"\u2600"}</span></button>
+          <a href="https://github.com/k0rdent/catalog" target="_blank" rel="noreferrer" style={{fontSize:11,color:"#ffffff",textDecoration:"none",padding:"5px 14px",border:"1px solid #ffffff",borderRadius:999,background:"transparent"}}>GitHub</a>
+          <a href={BASE+"contribute/"} onClick={function(e:any){e.preventDefault();setView("contribute");history.pushState(null,"",appendTheme(versionBase(k0rdentVer||"")+"contribute/"));}} style={{fontSize:11,color:"#000000",padding:"5px 14px",borderRadius:999,background:"#35db78",fontWeight:600,border:"none",cursor:"pointer",fontFamily:"inherit",textDecoration:"none"}}>Contribute</a>
         </div>
       </div>
     </div>
@@ -1703,7 +1705,7 @@ export default function App() {
 
   if (loading || loadError) {
     return (
-      <div style={{fontFamily:"'Inter',-apple-system,sans-serif",background:B.bg0,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
+      <div style={{fontFamily:"'Overpass',-apple-system,sans-serif",background:B.bg0,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:16}}>
         {loading && <span style={{color:B.teal,fontSize:16}}>Loading catalog...</span>}
         {loadError && <>
           <span style={{color:B.red,fontSize:14}}>{loadError}</span>
@@ -1714,7 +1716,7 @@ export default function App() {
   }
 
   return (
-    <div style={{fontFamily:"'Inter',-apple-system,sans-serif",background:B.bg0,minHeight:"100vh",padding:"0 0 40px"}}>
+    <div style={{fontFamily:"'Overpass',-apple-system,sans-serif",background:B.bg0,minHeight:"100vh",padding:"0 0 40px"}}>
       <style>{`
         @media (max-width: 640px) {
           .k0-nav-inner { flex-wrap: wrap; height: auto !important; padding: 8px 0 !important; gap: 6px !important; }
@@ -1762,7 +1764,7 @@ export default function App() {
             <p style={{fontSize:12,color:B.textSec,margin:"0 0 10px",lineHeight:1.9,textAlign:"justify"}}>
               Every integration sits at the intersection of <span style={{color:B.textPri,fontWeight:500}}>AI workloads</span> and <span style={{color:B.textPri,fontWeight:500}}>cloud-native Kubernetes infrastructure</span> — production-hardened on real enterprise clusters, composable by design, and relevant across the full AI lifecycle from GPU provisioning through model serving, RAG pipelines, observability, security, and FinOps. Not a directory of everything that exists, but a curated set of <span style={{color:B.teal,fontWeight:500}}>best-in-class integrations</span> validated by Mirantis platform engineers and deployable in minutes on any infrastructure.
             </p>
-            <div className="k0-stats-row" style={{display:"flex",gap:0,background:B.bg2,border:"1px solid "+B.border,borderRadius:8,overflow:"hidden",marginBottom:10}}>
+            <div className="k0-stats-row" style={{display:"flex",gap:0,background:B.bg1,border:"1px solid "+B.border,borderRadius:8,overflow:"hidden",marginBottom:10}}>
               {[{n:RAW.length,l:"Integrations",sub:"hand-selected",c:B.teal},{n:testedCount,l:"CI-validated",sub:"across 6 providers",c:B.green},{n:certCount,l:"Certified",sub:"Enterprise Support SLA",c:B.cyan},{n:"13",l:"Categories",sub:"GPU to GitOps",c:B.purple}].map(function(s,si,arr){
                 return <div key={s.l} style={{flex:"1 1 0",padding:"9px 12px",borderRight:si<arr.length-1?"1px solid "+B.border:"none",minWidth:0}}><div style={{fontSize:16,fontWeight:700,color:s.c,fontFamily:"monospace",lineHeight:1}}>{s.n}</div><div style={{fontSize:10.5,color:B.textPri,fontWeight:500,marginTop:2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.l}</div><div style={{fontSize:9,color:B.textMut,marginTop:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.sub}</div></div>;
               })}
@@ -1770,14 +1772,14 @@ export default function App() {
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
               {Object.entries(TIER_DESC).map(function(entry){
                 var k=entry[0]; var desc=entry[1];
-                var ss=SUPPORT_STYLE[k];
+                var ss=getSupportStyle(k);
                 var cnt=0; for(var ii=0;ii<RAW.length;ii++){if(getEff(RAW[ii])===k)cnt++;}
                 var isActive=support===k;
-                return <div key={k} style={{background:isActive?ss.bg:B.bg2,border:"1px solid "+(isActive?ss.text+"60":ss.border),borderLeft:"2px solid "+ss.text,borderRadius:7,padding:"9px 12px",display:"flex",gap:9,transition:"background 0.2s, border-color 0.2s"}}>
+                return <div key={k} style={{background:ss.bg,border:"1px solid "+(isActive?B.textPri:ss.border),borderLeft:"2px solid "+ss.text,borderRadius:7,padding:"9px 12px",display:"flex",gap:9,transition:"border-color 0.2s",cursor:"pointer"}} onClick={function(){setSupport(support===k?"All":k);}}>
                   <span style={{width:7,height:7,borderRadius:"50%",background:ss.text,flexShrink:0,marginTop:3,display:"inline-block"}}/>
                   <div style={{flex:1}}>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:3}}>
-                      <span style={{fontSize:10.5,fontWeight:700,color:ss.text}}>{SUPPORT_LABEL[k]}</span>
+                      <span style={{fontSize:10.5,fontWeight:700,color:isActive?B.textPri:B.textSec}}>{SUPPORT_LABEL[k]}</span>
                       <span style={{fontSize:9,fontFamily:"monospace",color:B.textMut,background:B.bg3,border:"1px solid "+B.border,borderRadius:3,padding:"1px 5px"}}>{cnt}</span>
                     </div>
                     <div style={{fontSize:10,color:B.textSec,lineHeight:1.55}}>{desc.indexOf("Mirantis Enterprise Support")!==-1?<>{desc.split("Mirantis Enterprise Support")[0]}<a href="https://www.mirantis.com/support/enterprise-support-options/" target="_blank" rel="noreferrer" style={{color:B.teal}}>Mirantis Enterprise Support</a>{desc.split("Mirantis Enterprise Support")[1]}</>:desc}</div>
@@ -1791,7 +1793,7 @@ export default function App() {
             {sidebarOpen && <div className="k0-sidebar" style={{width:196,flexShrink:0,display:"flex",flexDirection:"column",gap:13,position:"sticky",top:62}}>
               <div>
                 <div style={{fontSize:9,fontWeight:600,color:B.textMut,textTransform:"uppercase",letterSpacing:"0.09em",marginBottom:5}}>Sort</div>
-                <select value={sort} onChange={function(e){setSort(e.target.value);}} style={{width:"100%",padding:"5px 7px",border:"1px solid "+B.borderHi,borderRadius:6,fontSize:11.5,background:B.bg3,color:B.textSec,outline:"none",cursor:"pointer"}}>
+                <select value={sort} onChange={function(e){setSort(e.target.value);}} style={{width:"100%",padding:"5px 7px",border:"1px solid "+B.borderHi,borderRadius:6,fontSize:11.5,background:B.bg0,color:B.textSec,outline:"none",cursor:"pointer"}}>
                   <option>A-Z</option><option>Z-A</option><option>By Newest</option><option>Last updated</option><option>Tested first</option><option>Certified first</option><option>Most popular</option>
                 </select>
               </div>
@@ -1800,8 +1802,8 @@ export default function App() {
                 <div style={{display:"flex",flexDirection:"column",gap:3}}>
                   {ALL_SUPPORT.map(function(s){
                     var active=support===s;
-                    var color=s==="mirantis-certified"?B.teal:s==="partner"?B.green:B.textSec;
-                    return <button key={s} onClick={function(){setSupport(s);}} style={{textAlign:"left",padding:"5px 9px",border:"1px solid "+(active?color+"60":B.border),borderRadius:5,fontSize:11,background:active?color+"15":B.bg2,color:active?color:B.textSec,cursor:"pointer",fontWeight:active?600:400,fontFamily:"inherit"}}>{s==="All"?"All tiers":SUPPORT_LABEL[s]}</button>;
+                    var ss=getSupportStyle(s==="All"?"community":s);
+                    return <button key={s} onClick={function(){setSupport(s);}} style={{textAlign:"left",padding:"5px 9px",border:"1px solid "+(active?B.textPri:B.border),borderRadius:5,fontSize:11,background:ss.bg,color:active?B.textPri:B.textSec,cursor:"pointer",fontWeight:600,fontFamily:"inherit"}}>{s==="All"?"All tiers":SUPPORT_LABEL[s]}</button>;
                   })}
                 </div>
               </div>
@@ -1810,7 +1812,7 @@ export default function App() {
                 <div style={{display:"flex",flexDirection:"column",gap:3}}>
                   {ALL_TAGS.map(function(t){
                     var active=tag===t; var color=tagAccent(t);
-                    return <button key={t} onClick={function(){setTag(t);}} style={{textAlign:"left",padding:"4px 9px",border:"1px solid "+(active?color+"50":B.border),borderRadius:5,fontSize:10.5,background:active?color+"12":B.bg2,color:active?color:B.textSec,cursor:"pointer",fontWeight:active?600:400,display:"flex",alignItems:"center",justifyContent:"space-between",fontFamily:"inherit"}}>
+                    return <button key={t} onClick={function(){setTag(t);}} style={{textAlign:"left",padding:"4px 9px",border:"1px solid "+(active?B.textPri:B.border),borderRadius:5,fontSize:10.5,background:color+"12",color:active?B.textPri:B.textSec,cursor:"pointer",fontWeight:600,display:"flex",alignItems:"center",justifyContent:"space-between",fontFamily:"inherit"}}>
                       <span>{t}</span>{active&&<span style={{fontSize:8,opacity:0.7}}>✕</span>}
                     </button>;
                   })}
@@ -1826,7 +1828,7 @@ export default function App() {
                 </button>
                 <div style={{position:"relative",flex:1,minWidth:120}}>
                   <span style={{position:"absolute",left:8,top:"50%",transform:"translateY(-50%)",color:B.textMut,fontSize:12,pointerEvents:"none"}}>⌕</span>
-                  <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search apps..." style={{width:"100%",boxSizing:"border-box",paddingLeft:24,paddingRight:9,paddingTop:5,paddingBottom:5,border:"1px solid "+B.borderHi,borderRadius:6,fontSize:11,outline:"none",background:B.bg3,color:B.textPri}}/>
+                  <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search apps..." style={{width:"100%",boxSizing:"border-box",paddingLeft:24,paddingRight:9,paddingTop:5,paddingBottom:5,border:"1px solid "+B.borderHi,borderRadius:6,fontSize:11,outline:"none",background:B.bg0,color:B.textPri}}/>
                 </div>
                 <span style={{fontSize:10,color:B.textMut,fontFamily:"monospace",flexShrink:0}}>{filtered.length} / {RAW.length}</span>
               </div>
